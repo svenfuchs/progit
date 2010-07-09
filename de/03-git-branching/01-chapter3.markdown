@@ -675,10 +675,17 @@ This gives you a local branch that you can work on that starts where `origin/ser
 <!--
     TODO process-end:   2010-05-13 florianb
 -->
+<!--
+    TODO process-begin: 2010-07-06  florianb
+-->
 
 ### Tracking Branches ###
 
+Das Auschecken eines lokalen Branches von einem Remote-Branch erzeugt automatisch einen sogenannten _Tracking-Branch_. Tracking Branches sind lokale BRanches mit einer direkten Beziehung zu dem Remote-Zweig. Wenn du dich in einem Tracking-Branch befindest und `git push` eingibst, weiß Git automatisch zu welchem Server und Repository es Pushen soll. Ebenso führt `git pull` in einem dieser Branches dazu, dass alle entfernten Referenzen gefetched und automatisch in den Zweig gemerged werden.
+
 Checking out a local branch from a remote branch automatically creates what is called a _tracking branch_. Tracking branches are local branches that have a direct relationship to a remote branch. If you’re on a tracking branch and type git push, Git automatically knows which server and branch to push to. Also, running `git pull` while on one of these branches fetches all the remote references and then automatically merges in the corresponding remote branch.
+
+Wenn du ein Repository klonst, wird automatisch ein `master`-Branch erzeugt, welcher `origin/master` verfolgt. Deshalb können `git push` und `git pull` ohne weitere Argumente aufgerufen werden. Du kannst natürlich auch eigene Tracking-Branches erzeugen - welche die nicht Zweige auf `origin` und dessen `master`-Branch verfolgen. Der einfachste Fall ist das bereits gesehene Beispiel in welchem du `git checkout -b [branch] [remotename]/[branch]` ausführst. Mit der Git-Version 1.6.2 oder später kannst du auch die `--track`-Kurzvariante nutzen:
 
 When you clone a repository, it generally automatically creates a `master` branch that tracks `origin/master`. That’s why `git push` and `git pull` work out of the box with no other arguments. However, you can set up other tracking branches if you wish — ones that don’t track branches on `origin` and don’t track the `master` branch. The simple case is the example you just saw, running `git checkout -b [branch] [remotename]/[branch]`. If you have Git version 1.6.2 or later, you can also use the `--track` shorthand:
 
@@ -686,15 +693,23 @@ When you clone a repository, it generally automatically creates a `master` branc
 	Branch serverfix set up to track remote branch refs/remotes/origin/serverfix.
 	Switched to a new branch "serverfix"
 
+Um einen lokalen Branch mit einem anderem Namen als der Remote-Branch, kannst du einfach die erste Varianten mit einem neuen lokalen Branch-Namen:
+
 To set up a local branch with a different name than the remote branch, you can easily use the first version with a different local branch name:
 
 	$ git checkout -b sf origin/serverfix
 	Branch sf set up to track remote branch refs/remotes/origin/serverfix.
 	Switched to a new branch "sf"
 
+Nun wird dein lokaler Branch `sf` automatisch push und pull auf `origin/serverfix` durchführen.
+
 Now, your local branch sf will automatically push to and pull from origin/serverfix.
 
+### Löschen entfernter Branches ###
+
 ### Deleting Remote Branches ###
+
+Stellen wir uns du bist fertig mit deinem Remote-Branch - sagen wir deine Mitarbeiter und du, Ihr seid fertig mit einer neuen Funktion und habt sie in den entfernten `master`-Branch (oder in welchem Zweig Ihr sonst den stabilen Code ablegt) gemerged. Du kannst einen Remote-Branch mit der rather obtuse Syntax `git push [remotename] :[branch]` löschen. Wenn du deinen `serverfix`-Branch vom Server löschen möchtest, führe folgendes aus:
 
 Suppose you’re done with a remote branch — say, you and your collaborators are finished with a feature and have merged it into your remote’s `master` branch (or whatever branch your stable codeline is in). You can delete a remote branch using the rather obtuse syntax `git push [remotename] :[branch]`. If you want to delete your `serverfix` branch from the server, you run the following:
 
@@ -702,7 +717,13 @@ Suppose you’re done with a remote branch — say, you and your collaborators a
 	To git@github.com:schacon/simplegit.git
 	 - [deleted]         serverfix
 
+Boom. Kein Zweig mehr auf deinem Server. Du möchtest dir diese Seite vielleicht markieren, weil du dieses Kommando brauchen wirst und man leicht dessen Syntax vergisst. Ein Weg sich an dieses Kommando zu erinnern führt über die `git push [remotename] [localbranch]:[remotebranch]`-Snytax, welche wir bereits behandelt haben. Wenn du den `[localbranch]`-Teil weglässt, dann sagst du einfach "Nimm nichts von meiner Seite und mach es zu `[remotebranch]`".
+
 Boom. No more branch on your server. You may want to dog-ear this page, because you’ll need that command, and you’ll likely forget the syntax. A way to remember this command is by recalling the `git push [remotename] [localbranch]:[remotebranch]` syntax that we went over a bit earlier. If you leave off the `[localbranch]` portion, then you’re basically saying, “Take nothing on my side and make it be `[remotebranch]`.”
+
+<!--
+    TODO process-end:   2010-07-06 florianb
+-->
 
 ## Rebasing ##
 
