@@ -342,7 +342,7 @@ Now that your work is merged in, you have no further need for the `iss53` branch
 
 	$ git branch -d iss53
 
-### Grundlegende 'merge' Konflikte ###
+### Grundlegende Merge-Konflikte ###
 ### Basic Merge Conflicts ###
 
 Gelegentlich verläuft der Prozess nicht ganz so glatt. Wenn du an den selben Stellen in den selben Dateien unterschiedlicher Branches etwas geändert hast, kann Git diese nicht sauber zusammenführen. Wenn dein Fix an 'issue #53' die selbe Stelle in einer Datei verändert hat, die du auch mit `hotfix` angefasst hast, wirst du einen 'merge' Konflikt erhalten, der ungefähr so aussehen könnte:
@@ -709,7 +709,7 @@ Now, your local branch sf will automatically push to and pull from origin/server
 
 ### Deleting Remote Branches ###
 
-Stellen wir uns du bist fertig mit deinem Remote-Branch - sagen wir deine Mitarbeiter und du, Ihr seid fertig mit einer neuen Funktion und habt sie in den entfernten `master`-Branch (oder in welchem Zweig Ihr sonst den stabilen Code ablegt) gemerged. Du kannst einen Remote-Branch mit der rather obtuse Syntax `git push [remotename] :[branch]` löschen. Wenn du deinen `serverfix`-Branch vom Server löschen möchtest, führe folgendes aus:
+Stellen wir uns du bist fertig mit deinem Remote-Branch - sagen wir deine Mitarbeiter und du, Ihr seid fertig mit einer neuen Funktion und habt sie in den entfernten `master`-Branch (oder in welchem Zweig Ihr sonst den stabilen Code ablegt) gemerged. Du kannst einen Remote-Branch mit der unlogischen Syntax `git push [remotename] :[branch]` löschen. Wenn du deinen `serverfix`-Branch vom Server löschen möchtest, führe folgendes aus:
 
 Suppose you’re done with a remote branch — say, you and your collaborators are finished with a feature and have merged it into your remote’s `master` branch (or whatever branch your stable codeline is in). You can delete a remote branch using the rather obtuse syntax `git push [remotename] :[branch]`. If you want to delete your `serverfix` branch from the server, you run the following:
 
@@ -717,29 +717,49 @@ Suppose you’re done with a remote branch — say, you and your collaborators a
 	To git@github.com:schacon/simplegit.git
 	 - [deleted]         serverfix
 
-Boom. Kein Zweig mehr auf deinem Server. Du möchtest dir diese Seite vielleicht markieren, weil du dieses Kommando brauchen wirst und man leicht dessen Syntax vergisst. Ein Weg sich an dieses Kommando zu erinnern führt über die `git push [remotename] [localbranch]:[remotebranch]`-Snytax, welche wir bereits behandelt haben. Wenn du den `[localbranch]`-Teil weglässt, dann sagst du einfach "Nimm nichts von meiner Seite und mach es zu `[remotebranch]`".
+Boom. Kein Zweig mehr auf deinem Server. Du möchtest dir diese Seite vielleicht markieren, weil du dieses Kommando noch benötigen wirst und man leicht dessen Syntax vergisst. Ein Weg sich an dieses Kommando zu erinnern führt über die `git push [remotename] [localbranch]:[remotebranch]`-Snytax, welche wir bereits behandelt haben. Wenn du den `[localbranch]`-Teil weglässt, dann sagst du einfach "Nimm nichts von meiner Seite und mach es zu `[remotebranch]`".
 
 Boom. No more branch on your server. You may want to dog-ear this page, because you’ll need that command, and you’ll likely forget the syntax. A way to remember this command is by recalling the `git push [remotename] [localbranch]:[remotebranch]` syntax that we went over a bit earlier. If you leave off the `[localbranch]` portion, then you’re basically saying, “Take nothing on my side and make it be `[remotebranch]`.”
 
 <!--
     TODO process-end:   2010-07-06 florianb
 -->
+<!--
+    TODO process-begin: 2010-07-09 florianb
+-->
 
 ## Rebasing ##
 
+Es gibt in Git zwei Wege um Änderungen von einem Branch in einen anderen zu überführen: das `merge` und das `rebase`-Kommando. In diesem Abschnitt wirst du kennenlernen was Rebasing ist, wie du es anwendest, warum es ein verdammt abgefahrenes Werkzeug ist und wann du es lieber nicht einsetzen möchtest.
+
 In Git, there are two main ways to integrate changes from one branch into another: the `merge` and the `rebase`. In this section you’ll learn what rebasing is, how to do it, why it’s a pretty amazing tool, and in what cases you won’t want to use it.
 
+### Der einfache Rebase ###
 ### The Basic Rebase ###
+
+Wenn du zu einem früheren Beispiel aus dem Merge-Kapitel zurückkehrst (siehe Abbildung 3-27), wirst du sehen, dass du deine Arbeit auf zwei unterschiedliche Branches aufgeteilt hast.
 
 If you go back to an earlier example from the Merge section (see Figure 3-27), you can see that you diverged your work and made commits on two different branches.
 
-Insert 18333fig0327.png 
+Insert 18333fig0327.png
+Abbildung 3-27. Deine initiale Commit-Historie zum Zeitpunkt der Aufteilung.
+
 Figure 3-27. Your initial diverged commit history
+
+Der einfachste Weg um Zweige zusammenzuführen ist, wie bereits behandelt, das `merge`-Kommando. Es produziert einen Drei-Wege-Merge zwischen den beiden letzten Branch-Zuständen (C3 und C4) und ihrem wahrscheinlichsten Vorgänger (C2). Es produziert seinerseits einen Schnappschuss des Projektes (und einen Commit), wie in Abbildung 3-28 dargestellt.
 
 The easiest way to integrate the branches, as we’ve already covered, is the `merge` command. It performs a three-way merge between the two latest branch snapshots (C3 and C4) and the most recent common ancestor of the two (C2), creating a new snapshot (and commit), as shown in Figure 3-28.
 
-Insert 18333fig0328.png 
+Insert 18333fig0328.png
+Abbildung 3-28. Das Zusammenführen eines Branches um die verschiedenen Arbeitsfortschritte zu integrieren.
+
 Figure 3-28. Merging a branch to integrate the diverged work history
+
+Wie auch immer, es gibt noch einen anderen Weg: du kannst den Patch der Veränderungen nehmen welche in C3 aufgetaucht sind und diese .
+
+<!--
+    TODO process-end:   2010-07-09 florianb
+-->
 
 However, there is another way: you can take the patch of the change that was introduced in C3 and reapply it on top of C4. In Git, this is called _rebasing_. With the `rebase` command, you can take all the changes that were committed on one branch and replay them on another one.
 
