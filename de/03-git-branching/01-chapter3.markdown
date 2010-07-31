@@ -755,30 +755,43 @@ Abbildung 3-28. Das Zusammenführen eines Branches um die verschiedenen Arbeitsf
 
 Figure 3-28. Merging a branch to integrate the diverged work history
 
-Wie auch immer, es gibt noch einen anderen Weg: du kannst den Patch der Veränderungen nehmen welche in C3 aufgetaucht sind und diese .
+Wie auch immer, es gibt noch einen anderen Weg: du kannst den Patch der Änderungen - den wir in C3 eingeführt haben -  über C4 anwenden. Dieses Vorgehen nennt man in Git _rebasing_. Mit dem `rebase`-Kommando kannst du alle Änderungen die auf einem Branch angewendet wurden auf einen anderen Branch erneut anwenden.
 
 <!--
     TODO process-end:   2010-07-09 florianb
+    TODO process-begin: 2010-07-31 florianb
 -->
 
 However, there is another way: you can take the patch of the change that was introduced in C3 and reapply it on top of C4. In Git, this is called _rebasing_. With the `rebase` command, you can take all the changes that were committed on one branch and replay them on another one.
 
 In this example, you’d run the following:
+In unserem Beispiel würdest du folgendes ausführen:
 
 	$ git checkout experiment
 	$ git rebase master
 	First, rewinding head to replay your work on top of it...
 	Applying: added staged command
 
+Dies funktioniert, indem Git zu dem gemeinsamen/allgemeinen Vorfahren [gemeinsamer Vorfahr oder der Ursprung der beiden Branches?] der beiden Branches (des Zweiges auf dem du arbeitest und des Zweiges auf den du _rebasen_ möchtest) geht, die Differenzen jedes Commits des aktuellen Branches ermittelt und temporär in einer Datei ablegt. Danach wird der aktuelle Branch auf den Schnittpunkt der beiden Zweige zurückgesetzt und alle zwischengespeicherte Commits nacheinander auf Zielbranch angewendet. Die Abbildung 3-29 bildet diesen Prozess ab.
+
 It works by going to the common ancestor of the two branches (the one you’re on and the one you’re rebasing onto), getting the diff introduced by each commit of the branch you’re on, saving those diffs to temporary files, resetting the current branch to the same commit as the branch you are rebasing onto, and finally applying each change in turn. Figure 3-29 illustrates this process.
 
-Insert 18333fig0329.png 
+Insert 18333fig0329.png
+Abbildung 3-29. Rebasen der Änderungen durch C3 auf den Zweig C4.
 Figure 3-29. Rebasing the change introduced in C3 onto C4
+
+An diesem Punkt kannst du zurück zum Master-Branch wechseln und einen fast-forward Merge durchführen (siehe Abbildung 3-30).
 
 At this point, you can go back to the master branch and do a fast-forward merge (see Figure 3-30).
 
-Insert 18333fig0330.png 
+Insert 18333fig0330.png
+Abbildung 3-30. Fast-forward des Master-Branches.
+
 Figure 3-30. Fast-forwarding the master branch
+
+<!--
+    TODO    process-end:    2010-07-31 florianb
+-->
 
 Now, the snapshot pointed to by C3 is exactly the same as the one that was pointed to by C5 in the merge example. There is no difference in the end product of the integration, but rebasing makes for a cleaner history. If you examine the log of a rebased branch, it looks like a linear history: it appears that all the work happened in series, even when it originally happened in parallel.
 
