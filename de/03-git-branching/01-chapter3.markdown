@@ -1,21 +1,28 @@
 # Git Branching #
 
-Fast jedes VCS hat irgendeine Form von branching Unterstützung. Als branching versteht man dabei, die Fähigkeit von der Hauptentwicklungslinie abzuweichen ohne diese zu beeinflussen. Bei vielen VCS ist das ein umständlicher und komplizierter Prozess. Nicht selten ist es notwendig, eine Kopie des kompletten Arbeitsverzeichnisses zu erstellen, was bei grossen Projekten eine Weile dauern kann.
+Nahezu jedes VCS unterstützt eine Form von Branching. Branching bedeutet du zweigst von der Hauptentwicklungslinie ab und arbeitest weiter ohne den Hauptzweig zu beeinflussen. Bei vielen VCS ist das ein umständlicher und komplizierter Prozess. Nicht selten ist es notwendig eine Kopie des kompletten Arbeitsverzeichnisses zu erstellen, was bei grossen Projekten eine ganze Weile dauern kann.
+
 Nearly every VCS has some form of branching support. Branching means you diverge from the main line of development and continue to do work without messing with that main line. In many VCS tools, this is a somewhat expensive process, often requiring you to create a new copy of your source code directory, which can take a long time for large projects.
 
-Es gibt Leute, die bezeichnen das branching Modell in Git als sein "killer feature", weshalb sich Git dadurch zweifellos innerhalb der VCS Community abhebt. Aber warum ist es so besonders? Die Art wie Git Branches behandelt ist unglaublich leichtgewichtig, macht das branching dadurch blitzschnell und ermöglicht so einfaches vor und zurück Schalten der einzelnen Versionen. Anders als andere VCS ermutigt Gít ausdrücklich zur Verwendung von häufigem branching und merging. Das Verständnis und die Fähigkeit im Umgang mit diesem Feature gibt dir ein machtvolles und einzigartiges Werkzeug in die Hand, dass deinen Weg zu entwicklen buchstäblich ändern wird.
+Es gibt Leute, die bezeichnen das Branching-Modell in Git als sein "killer feature", wodurch sich Git zweifellos von dem Rest der VCS-Community abhebt. Aber was macht es so besonders? Git behandelt Branches unglaublich leichtgewichtig, führt Branch-Operationen nahezu verzugslos aus und kann annähernd genauso schnell zwischen den Zweigen hin- und herschalten. Im Gegensatz zu anderen VCS ermutigt Git eine Arbeitsweise mit häufigem Branching und Merging - oft mehrmals am Tag. Diese Funktion zu verstehen und zu meistern gibt dir ein mächtiges und einzigartiges Werkzeug an die Hand und kann deine Art zu entwickeln buchstäblich verändern.
+
 Some people refer to the branching model in Git as its “killer feature,” and it certainly sets Git apart in the VCS community. Why is it so special? The way Git branches is incredibly lightweight, making branching operations nearly instantaneous and switching back and forth between branches generally just as fast. Unlike many other VCSs, Git encourages a workflow that branches and merges often, even multiple times in a day. Understanding and mastering this feature gives you a powerful and unique tool and can literally change the way that you develop.
 
 ## Was ein Branch ist ##
 ## What a Branch Is ##
 
-Um den Weg des branching in Git richtig zu verstehen, müssen wir eine Schritt zurück machen und untersuchen, wie Git die Daten speichert. Wie du sicher noch aus Kapitel 1 weisst, speichert Git nicht eine Reihe von Änderungen und Unterschiede, sondern immer in Form von Snapshots, also aktuelle Sichten auf den Code. 
+Um wirklich zu verstehen wie Git Branching durchführt, müssen wir einen Schritt zurück gehen und untersuchen wie Git die Daten speichert. Wie du dich vielleicht noch aus Kapitel 1 erinnerst, speichert Git seine Daten als Serie von Änderungen oder Unterschiede, sondern als Serie von Schnappschüssen.
+
 To really understand the way Git does branching, we need to take a step back and examine how Git stores its data. As you may remember from Chapter 1, Git doesn’t store data as a series of changesets or deltas, but instead as a series of snapshots.
 
+Wenn du in Git committest, speichert Git ein sogenanntes Commit-Objekt, dass einen Zeiger zu dem Schnappschuss mit den Inhalten der Staging-Area, dem Autor, die Commit-Metadaten und Zeiger zu den direkten Eltern dieses Commits. Ein initialer Commit hat keine Eltern-Commits, ein normaler Commit stammt von einem Eltern-Commit ab und ein Commit, welcher aus einer Zussammenführung von zwei oder mehr Branches resultiert besitzt stammt von ebenso vielen Eltern-Commits ab.
+
 Wenn du ein Commit durchführst, speichert Git ein Commit-Objekt, das einen Pointer auf die aktuelle Sicht des geänderten Inhalts besitzt. Gleichzeitig wird der Autor, einige zusätzliche Informationen und kein oder mehrere Pointer auf die direkten Elternteile dieses Commits abgespeichert: kein Pointer für den ersten Commit, ein Pointer für ein normales Commit und mehrere Pointer für ein Commit, dass auf Basis eines merge von ein oder mehreren branches durchgeführt wurde.
+
 When you commit in Git, Git stores a commit object that contains a pointer to the snapshot of the content you staged, the author and message metadata, and zero or more pointers to the commit or commits that were the direct parents of this commit: zero parents for the first commit, one parent for a normal commit, and multiple parents for a commit that results from a merge of two or more branches.
 
-Um das zu verdeutlichen, lass uns annehmen, du hast ein Verzeichnis mit drei Dateien, die du alle markierst und commitest. Das Markieren der Dateien erzeugt für jede eine Prüfsumme (der SHA-1 Hash, der ebenfalls in Kapitel 1 erwähnt wurde), speichert diese Version der Datei im Git Repository (Git referenziert auf diese als Blobs) und fügt diese Prüfsumme der markierten Ebene hinzu:
+Um das zu verdeutlichen, lass uns annehmen, du hast ein Verzeichnis mit drei Dateien, die du alle der Staging-Area hinzufügst und in einem Commit verpackst. Durch das Stagen der Dateien erzeugt Git für jede Datei eine Prüfsumme (der SHA-1 Hash den wir in Kapitel 1 erwähnt haben), speichert diese Version der Datei im Git-Repository (Git referenziert auf diese als Blobs) und fügt die Prüfsumme der Staging-Area hinzu:
+
 To visualize this, let’s assume that you have a directory containing three files, and you stage them all and commit. Staging the files checksums each one (the SHA-1 hash we mentioned in Chapter 1), stores that version of the file in the Git repository (Git refers to them as blobs), and adds that checksum to the staging area:
 
 	$ git add README test.rb LICENSE2
@@ -945,7 +952,7 @@ Irgendwann musst du seine Arbeit einmergen, damit du auch zukünftig mit dem and
 
 You have to merge that work in at some point so you can keep up with the other developer in the future. After you do that, your commit history will contain both the C4 and C4' commits, which have different SHA-1 hashes but introduce the same work and have the same commit message. If you run a `git log` when your history looks like this, you’ll see two commits that have the same author date and message, which will be confusing. Furthermore, if you push this history back up to the server, you’ll reintroduce all those rebased commits to the central server, which can further confuse people.
 
-Wenn du rebasing als weg behandelst um aufzuräumen und mit Commits zu arbeiten, bevor du sie hochlädst und wenn du nur Commits rebased die noch nie publiziert wurden, dann fährst du goldrichtig. Wenn du Commits rebased die bereits veröffentlicht wurden und Leute vielleicht schon ihre Arbeit darauf aufgebaut haben, dann bist du vielleicht für frustrierenden Ärger verantwortlich.
+Wenn du rebasing als Weg behandelst um aufzuräumen und mit Commits zu arbeiten, bevor du sie hochlädst und wenn du nur Commits rebased die noch nie publiziert wurden, dann fährst du goldrichtig. Wenn du Commits rebased die bereits veröffentlicht wurden und Leute vielleicht schon ihre Arbeit darauf aufgebaut haben, dann bist du vielleicht für frustrierenden Ärger verantwortlich.
 
 If you treat rebasing as a way to clean up and work with commits before you push them, and if you only rebase commits that have never been available publicly, then you’ll be fine. If you rebase commits that have already been pushed publicly, and people may have based work on those commits, then you may be in for some frustrating trouble.
 
