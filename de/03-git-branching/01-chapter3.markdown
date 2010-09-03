@@ -6,7 +6,7 @@ Nearly every VCS has some form of branching support. Branching means you diverge
 Es gibt Leute, die bezeichnen das branching Modell in Git als sein "killer feature", weshalb sich Git dadurch zweifellos innerhalb der VCS Community abhebt. Aber warum ist es so besonders? Die Art wie Git Branches behandelt ist unglaublich leichtgewichtig, macht das branching dadurch blitzschnell und ermöglicht so einfaches vor und zurück Schalten der einzelnen Versionen. Anders als andere VCS ermutigt Gít ausdrücklich zur Verwendung von häufigem branching und merging. Das Verständnis und die Fähigkeit im Umgang mit diesem Feature gibt dir ein machtvolles und einzigartiges Werkzeug in die Hand, dass deinen Weg zu entwicklen buchstäblich ändern wird.
 Some people refer to the branching model in Git as its “killer feature,” and it certainly sets Git apart in the VCS community. Why is it so special? The way Git branches is incredibly lightweight, making branching operations nearly instantaneous and switching back and forth between branches generally just as fast. Unlike many other VCSs, Git encourages a workflow that branches and merges often, even multiple times in a day. Understanding and mastering this feature gives you a powerful and unique tool and can literally change the way that you develop.
 
-## Was eine Branch ist ##
+## Was ein Branch ist ##
 ## What a Branch Is ##
 
 Um den Weg des branching in Git richtig zu verstehen, müssen wir eine Schritt zurück machen und untersuchen, wie Git die Daten speichert. Wie du sicher noch aus Kapitel 1 weisst, speichert Git nicht eine Reihe von Änderungen und Unterschiede, sondern immer in Form von Snapshots, also aktuelle Sichten auf den Code. 
@@ -125,6 +125,8 @@ This is in sharp contrast to the way most VCS tools branch, which involves copyi
 
 Lass uns anschauen, wie du das machen kannst.
 Let’s see why you should do so.
+
+## Einfaches Branching und Merging ##
 
 ## Basic Branching and Merging ##
 
@@ -793,92 +795,164 @@ Figure 3-30. Fast-forwarding the master branch
     TODO    process-end:    2010-07-31 florianb
 -->
 
+<!--
+    TODO    process-begin:  2010-09-03 florianb
+-->
+
+Nun ist der Schnappschuss, auf den C3 zeigt, exakt der gleiche, wie der auf den C5 in dem Merge-Beispiel gezeigt hat. Bei dieser Zusammenführung entsteht kein unterschiedliches Produkt, durch Rebasing ensteht allerdings ein sauberer Verlauf. Bei genauerer Betrachtung der Historie, entpuppt sich der Rebased-Branch als linearer Verlauf - es scheint als sei die ganze Arbeit in einer Serie entstanden, auch wenn sie in Wirklichkeit parallel stattfand.
+
 Now, the snapshot pointed to by C3 is exactly the same as the one that was pointed to by C5 in the merge example. There is no difference in the end product of the integration, but rebasing makes for a cleaner history. If you examine the log of a rebased branch, it looks like a linear history: it appears that all the work happened in series, even when it originally happened in parallel.
+
+Du wirst das häufig anwenden um sicherzustellen, dass sich deine Commits sauber in einen Remote-Branch integrieren - möglicherweise in einem Projekt bei dem du dich beteiligen möchtest, du jedoch nicht der Verantwortliche bist. In diesem Fall würdest du deine Arbeiten in einem eigenen Branch erledigen und im Anschluss deine Änderungen auf `origin/master` rebasen. Dann hätte der Verantwortliche nämliche keinen Aufwand mit der Integration - nur einen Fast-Forward oder eine saubere Integration (= Rebase?).
 
 Often, you’ll do this to make sure your commits apply cleanly on a remote branch — perhaps in a project to which you’re trying to contribute but that you don’t maintain. In this case, you’d do your work in a branch and then rebase your work onto `origin/master` when you were ready to submit your patches to the main project. That way, the maintainer doesn’t have to do any integration work — just a fast-forward or a clean apply.
 
+Beachte, dass der Schnappschuss nach dem letzten Commit, ob es der letzte der Rebase-Commits nach einem Rebase oder der finale Merge-Commit nach einem Merge ist, exakt gleich ist. Sie unterscheiden sich nur in ihrem Verlauf. Rebasing wiederholt einfach die Änderungen einer Arbeitslinie auf einer anderen, in der Reihenfolge in der sie entstanden sind. Im Gegensatz hierzu nimmt Merging die beiden Endpunkte der Arbeitslinien und führt diese zusammen.
+
 Note that the snapshot pointed to by the final commit you end up with, whether it’s the last of the rebased commits for a rebase or the final merge commit after a merge, is the same snapshot — it’s only the history that is different. Rebasing replays changes from one line of work onto another in the order they were introduced, whereas merging takes the endpoints and merges them together.
+
+### Noch interessantere Rebases ###
 
 ### More Interesting Rebases ###
 
+Du kannst deinen Rebase auch auf einem anderen Branch als dem Rebase-Branch anwenden lassen. Nimm zum Beispiel den Verlauf in Abbildung 3-31. Du hattest einen Themen-Branch (`server`) eröffnet um ein paar serverseitige Funktionalitäten zu deinem Projekt hinzuzufügen und einen Commit gemacht. Dann hast du einen weiteren Branch abgezweigt um clientseitige Änderungen (`client`) vorzunehmen und dort ein paarmal committed. Zum Schluss hast du wieder zu deinem Server-Branch gewechselt und ein paar weitere Commits gebaut.
+
 You can also have your rebase replay on something other than the rebase branch. Take a history like Figure 3-31, for example. You branched a topic branch (`server`) to add some server-side functionality to your project, and made a commit. Then, you branched off that to make the client-side changes (`client`) and committed a few times. Finally, you went back to your server branch and did a few more commits.
 
-Insert 18333fig0331.png 
+Insert 18333fig0331.png
+Abbildung 3-31. Ein Verlauf mit einem Themen-Branch basierend auf einem weiteren Themen-Branch.
+
 Figure 3-31. A history with a topic branch off another topic branch
+
+Stell dir vor du entscheidest dich deine clientseitigen Änderungen für einen Release in die Hauptlinie zu mergen, die serverseitigen Änderungen möchtest du aber noch zurückhalten bis sie besser getestet wurden. Du kannst einfach die Änderungen am Client, die den Server nicht betreffen, (C8 und C9) mit der `--onto`-Option von `git rebase` erneut auf den Master-Branch anwenden:
 
 Suppose you decide that you want to merge your client-side changes into your mainline for a release, but you want to hold off on the server-side changes until it’s tested further. You can take the changes on client that aren’t on server (C8 and C9) and replay them on your master branch by using the `--onto` option of `git rebase`:
 
 	$ git rebase --onto master server client
 
+Das bedeutet einfach “Checke den Client-Branch aus, finde die Patches heraus die auf dem gemeinsamen Vorfahr der `client`- und `server`-Branches basieren und wende sie erneut auf dem `master`-Branch an.” Das ist ein bisschen komplex aber das Ergebnis - wie in Abbildung 3-32 - ist richtig cool.
+
 This basically says, “Check out the client branch, figure out the patches from the common ancestor of the `client` and `server` branches, and then replay them onto `master`.” It’s a bit complex; but the result, shown in Figure 3-32, is pretty cool.
 
-Insert 18333fig0332.png 
+Insert 18333fig0332.png
+Abbildung 3-32. Rebasing eines Themen-Branches von einem anderen Themen-Branch.
+
 Figure 3-32. Rebasing a topic branch off another topic branch
+
+Jetzt kannst du deinen Master-Branch fast-forwarden (siehe Abbildung 3-33):
 
 Now you can fast-forward your master branch (see Figure 3-33):
 
 	$ git checkout master
 	$ git merge client
 
-Insert 18333fig0333.png 
+Insert 18333fig0333.png
+Abbildung 3-33. Fast-forwarding deines Master-Branches um die Client-Branch-Änderungen zu integrieren.
+
 Figure 3-33. Fast-forwarding your master branch to include the client branch changes
+
+Lass uns annehmen, du entscheidest dich deinen Server-Branch ebenfalls einzupflegen. Du kannst den Server-Branch auf den Master-Branch rebasen ohne diesen vorher auschecken zu müssen, indem du das Kommando `git rebase [Basis-Branch] [Themen-Branch]` ausführst. Es macht für dich den Checkout des Themen-Branches (in diesem Fall `server`) und wiederholt ihn auf dem Basis-Branch (`master`):
 
 Let’s say you decide to pull in your server branch as well. You can rebase the server branch onto the master branch without having to check it out first by running `git rebase [basebranch] [topicbranch]` — which checks out the topic branch (in this case, `server`) for you and replays it onto the base branch (`master`):
 
 	$ git rebase master server
 
+Das wiederholt deine `server`-Arbeit auf der Basis der `server`-Arbeit,wie aus Abbildung 3-34 zu ersehen.
+
 This replays your `server` work on top of your `master` work, as shown in Figure 3-34.
 
-Insert 18333fig0334.png 
+Insert 18333fig0334.png
+Abbildung 3-34. Rebasing deines Server-Branches auf deinen Master-Branch.
+
 Figure 3-34. Rebasing your server branch on top of your master branch
+
+Dann kannst du den Basis-Branch (`master`) fast-forwarden:
 
 Then, you can fast-forward the base branch (`master`):
 
 	$ git checkout master
 	$ git merge server
 
+Du kannst den `client`- und `server`-Branch nun entfernen, da du die ganze Arbeit bereits integriert wurde und Sie nicht mehr benötigst. Du hinterlässt den Verlauf für den ganzen Prozess wie in Abbildung 3-35:
+
 You can remove the `client` and `server` branches because all the work is integrated and you don’t need them anymore, leaving your history for this entire process looking like Figure 3-35:
 
 	$ git branch -d client
 	$ git branch -d server
 
-Insert 18333fig0335.png 
+Insert 18333fig0335.png
+Abbildung 3-35: Endgültiger Commit-Verlauf.
+
 Figure 3-35. Final commit history
+
+### Die Gefahren des Rebasings ###
 
 ### The Perils of Rebasing ###
 
+Ahh, aber der ganze Spaß mit dem Rebasing kommt nicht ohne seine Schattenseiten, welche in einer einzigen Zeile zusammengefasst werden können:
+
 Ahh, but the bliss of rebasing isn’t without its drawbacks, which can be summed up in a single line:
+
+**Rebase keine Commits die du in ein öffentliches Repository hochgeladen hast.**
 
 **Do not rebase commits that you have pushed to a public repository.**
 
+Wenn du diesem Ratschlag folgst ist alles in ordnung. Falls nicht werden die Leute dich hassen und du wirst von deinen Freunden und deiner Familie verachtet.
+
 If you follow that guideline, you’ll be fine. If you don’t, people will hate you, and you’ll be scorned by friends and family.
+
+Wenn du Zeug rebased, hebst du bestehende Commits auf und erstellst stattdessen die zwar ähnlich aber unterschiedlich sind. Wenn du Commits irgendwohin hochlädst und andere ziehen sich diese herunter und nehmen sie als Grundlage für ihre Arbeit, dann müssen deine Mitwirkenden ihre Arbeit jedesmal re-mergen, sobald du deine Commits mit einem `git rebase` überschreibst und verteilst. Und richtig chaotisch wird's wenn du versuchst deren Arbeit in deine Commits zu integrieren.
 
 When you rebase stuff, you’re abandoning existing commits and creating new ones that are similar but different. If you push commits somewhere and others pull them down and base work on them, and then you rewrite those commits with `git rebase` and push them up again, your collaborators will have to re-merge their work and things will get messy when you try to pull their work back into yours.
 
+Lass uns mal ein Beispiel betrachten wie das Rebasen veröfentlichter Arbeit Probleme verursachen kann. Angenommen du klonst von einem zentralen Server und werkelst ein bisschen daran rum. Dein Commit-Verlauf sieht wie in Abbildung 3-36 aus.
+
 Let’s look at an example of how rebasing work that you’ve made public can cause problems. Suppose you clone from a central server and then do some work off that. Your commit history looks like Figure 3-36.
 
-Insert 18333fig0336.png 
+Insert 18333fig0336.png
+Abbildung 3-36. Klon ein Repository und baue etwas darauf auf.
+
 Figure 3-36. Clone a repository, and base some work on it.
+
+Ein anderer arbeitet unterdessen weiter, macht einen Merge und lädt seine Arbeit auf den zentralen Server. Du fetchst die Änderungen und mergest den neuen Remote-Branch in deine Arbeit, sodass dein Verlauf wie in Abbildung 3-37 aussieht.
 
 Now, someone else does more work that includes a merge, and pushes that work to the central server. You fetch them and merge the new remote branch into your work, making your history look something like Figure 3-37.
 
-Insert 18333fig0337.png 
+Insert 18333fig0337.png
+Abbildung 3-37. Fetche mehrere Commits und merge sie in deine Arbeit.
+
 Figure 3-37. Fetch more commits, and merge them into your work.
+
+Als nächstes entscheidet sich die Person, welche den Merge hochgeladen hat diesen rückgängig zu machen und stattdessen die Commits zu rebasen. Sie macht einen `git push --force` um den Verlauf auf dem Server zu überschreiben. Du lädst dir das Ganze dann mit den neuen Commits herunter.
 
 Next, the person who pushed the merged work decides to go back and rebase their work instead; they do a `git push --force` to overwrite the history on the server. You then fetch from that server, bringing down the new commits.
 
-Insert 18333fig0338.png 
+Insert 18333fig0338.png
+Abbildung 3-38. Jemand pusht rebased Commits und verwirft damit Commitd auf denen deine Arbeit basiert.
+
 Figure 3-38. Someone pushes rebased commits, abandoning commits you’ve based your work on.
+
+Nun musst du seine Arbeit erneut in deine Arbeitslinie mergen, obwohl du das bereits einmal gemacht hast. Rebasing ändert die SHA-1-Hashes der Commits, weshalb sie für Git wie neue Commits aussehen. In Wirklichkeit hast du die C4-Arbeit bereits in deinem Verlauf (siehe Abbildung 3-39).
 
 At this point, you have to merge this work in again, even though you’ve already done so. Rebasing changes the SHA-1 hashes of these commits so to Git they look like new commits, when in fact you already have the C4 work in your history (see Figure 3-39).
 
-Insert 18333fig0339.png 
+Insert 18333fig0339.png
+Abbildung 3-39. Du mergst die gleiche Arbeit nochmals in einen neuen Merge-Commit.
+
 Figure 3-39. You merge in the same work again into a new merge commit.
+
+Irgendwann musst du seine Arbeit einmergen, damit du auch zukünftig mit dem anderen Entwickler zusammenarbeiten kannst. Danach wird dein Commit-Verlauf sowohl den C4 als auch den C4'-Commit enthalten, weche zwar verschiedene SHA-1-Hashes besitzen aber die gleichen Änderungen und die gleiche Commit-Beschreibung enthalten. Wenn du so einen Verluaf mit `git log` betrachtest, wirst immer zwei Commits des gleichen Autors, zur gleichen Zeit und mit der gleichen Commit-Nachricht sehen. Was ganz schön verwirrend ist. Wenn du diesen Verlauf außerdem auf den Server hochlädst, wirst du dort alle rebasierten Commits einführen, was auch noch andere verwirren kann.
 
 You have to merge that work in at some point so you can keep up with the other developer in the future. After you do that, your commit history will contain both the C4 and C4' commits, which have different SHA-1 hashes but introduce the same work and have the same commit message. If you run a `git log` when your history looks like this, you’ll see two commits that have the same author date and message, which will be confusing. Furthermore, if you push this history back up to the server, you’ll reintroduce all those rebased commits to the central server, which can further confuse people.
 
+Wenn du rebasing als weg behandelst um aufzuräumen und mit Commits zu arbeiten, bevor du sie hochlädst und wenn du nur Commits rebased die noch nie publiziert wurden, dann fährst du goldrichtig. Wenn du Commits rebased die bereits veröffentlicht wurden und Leute vielleicht schon ihre Arbeit darauf aufgebaut haben, dann bist du vielleicht für frustrierenden Ärger verantwortlich.
+
 If you treat rebasing as a way to clean up and work with commits before you push them, and if you only rebase commits that have never been available publicly, then you’ll be fine. If you rebase commits that have already been pushed publicly, and people may have based work on those commits, then you may be in for some frustrating trouble.
 
+## Zusammenfassung ##
+
 ## Summary ##
+
+Wir haben einfaches Branching und Merging mit Git behandelt. Du solltest nun gut damit zurecht kommen Branches zu erstellen, zwischen Branches zu wechseln und lokale Branches mit einem Merge zusammenzuführen. Ausserdem solltest du in der Lage sein deine Branches zu veröffentlichen indem du sie auf einen zentralen Server lädst, mit anderen auf öffentlichen Branches zusammenzuarbeiten und deine Branches zu rebasen bevor sie veröffentlicht werden.
 
 We’ve covered basic branching and merging in Git. You should feel comfortable creating and switching to new branches, switching between branches and merging local branches together.  You should also be able to share your branches by pushing them to a shared server, working with others on shared branches and rebasing your branches before they are shared.
