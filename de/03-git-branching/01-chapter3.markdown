@@ -502,7 +502,7 @@ In unserem Beispiel würdest du folgendes ausführen:
 	$ git checkout experiment
 	$ git rebase master
 	First, rewinding head to replay your work on top of it...
-	Applying: added staged command
+	Applying: added staged command 
 
 Dies funktioniert, indem Git zu dem gemeinsamen/allgemeinen Vorfahren [gemeinsamer Vorfahr oder der Ursprung der beiden Branches?] der beiden Branches (des Zweiges auf dem du arbeitest und des Zweiges auf den du _rebasen_ möchtest) geht, die Differenzen jedes Commits des aktuellen Branches ermittelt und temporär in einer Datei ablegt. Danach wird der aktuelle Branch auf den Schnittpunkt der beiden Zweige zurückgesetzt und alle zwischengespeicherte Commits nacheinander auf Zielbranch angewendet. Die Abbildung 3-29 bildet diesen Prozess ab.
 
