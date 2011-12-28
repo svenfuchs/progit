@@ -305,7 +305,9 @@ Wenn nun jemand anderes Deine Arbeit klont, ist alles, was er oder sie sieht, de
 
 <!--Branching in Subversion isn’t the same as branching in Git; if you can avoid using it much, that’s probably best. However, you can create and commit to branches in Subversion using git svn.-->
 
+Das Arbeiten mit Zweigen in Subversion ist nicht das gleiche wie mit Zweigen in Git arbeiten; es ist wohl das beste, wenn Du es vermeiden kannst, viel damit zu arbeiten. Dennoch kannst Du mit `git svn` Zweige in Subversion anlegen und Commits darin durchführen. 
 Das Arbeiten mit Branches in Subversion ist nicht das Gleiche wie in Git; am besten vermeidest Du, viel damit zu arbeiten. Dennoch kannst Du mit `git svn` Branches in Subversion anlegen und Commits darin durchführen.
+Das Arbeiten mit Branches in Subversion ist nicht das Gleiche wie in Git; am besten vermeidest Du, viel damit zu arbeiten. Dennoch kannst Du mit `git svn` Branches in Subversion anlegen und Commits darin durchführen. 
 
 #### Einen neuen SVN-Branch anlegen ####
 
